@@ -1,0 +1,62 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-primary: #0f0f14;
+  --bg-secondary: #1a1a24;
+  --bg-card: #1e1e2d;
+  --bg-hover: #252538;
+  --bg-input: #14141e;
+  --border: #2a2a3d;
+  --text-primary: #e8e8f0;
+  --text-secondary: #8888a0;
+  --text-muted: #55556a;
+  --accent: #6c5ce7;
+  --accent-hover: #7c6df7;
+  --income: #2ecc71;
+  --expense: #ff6b6b;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --sidebar-width: 220px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --transition: 0.2s ease;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+}
+
+#root {
+  width: 100%;
+  display: flex;
+}
+
+input, select, button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
