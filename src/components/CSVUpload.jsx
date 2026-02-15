@@ -9,30 +9,51 @@ export default function CSVUpload() {
   const [status, setStatus] = useState(null);
   const fileRef = useRef();
 
-  async function handleFile(file) {
-    if (!file) return;
-    setStatus({ type: 'loading', message: 'Parsing CSV...' });
-    try {
-      const { transactions, rowCount } = await parseCSV(file);
-      if (transactions.length === 0) {
-        setStatus({ type: 'error', message: 'No valid transactions found. Check your CSV format.' });
-        return;
+  async function handleFiles(files) {
+    if (!files || files.length === 0) return;
+    const fileList = Array.from(files);
+    setStatus({ type: 'loading', message: `Parsing ${fileList.length} file${fileList.length > 1 ? 's' : ''}...` });
+
+    let totalImported = 0;
+    let totalRows = 0;
+    const errors = [];
+
+    for (const file of fileList) {
+      try {
+        const { transactions, rowCount } = await parseCSV(file);
+        if (transactions.length === 0) {
+          errors.push(`${file.name}: no valid transactions found`);
+          continue;
+        }
+        dispatch({ type: 'IMPORT_TRANSACTIONS', payload: transactions });
+        totalImported += transactions.length;
+        totalRows += rowCount;
+      } catch (err) {
+        errors.push(`${file.name}: ${err.message}`);
       }
-      dispatch({ type: 'IMPORT_TRANSACTIONS', payload: transactions });
+    }
+
+    if (totalImported > 0 && errors.length === 0) {
       setStatus({
         type: 'success',
-        message: `Imported ${transactions.length} transactions from ${rowCount} rows.`,
+        message: `Imported ${totalImported} transactions from ${fileList.length} file${fileList.length > 1 ? 's' : ''} (${totalRows} rows).`,
       });
-      setTimeout(() => setStatus(null), 4000);
-    } catch (err) {
-      setStatus({ type: 'error', message: err.message });
+    } else if (totalImported > 0 && errors.length > 0) {
+      setStatus({
+        type: 'success',
+        message: `Imported ${totalImported} transactions. ${errors.length} file${errors.length > 1 ? 's' : ''} had issues: ${errors.join('; ')}`,
+      });
+    } else {
+      setStatus({ type: 'error', message: errors.join('; ') || 'No valid transactions found.' });
     }
+
+    setTimeout(() => setStatus(null), 6000);
   }
 
   function onDrop(e) {
     e.preventDefault();
     setDragOver(false);
-    handleFile(e.dataTransfer.files[0]);
+    handleFiles(e.dataTransfer.files);
   }
 
   return (
@@ -48,12 +69,13 @@ export default function CSVUpload() {
           ref={fileRef}
           type="file"
           accept=".csv,.tsv,.txt"
+          multiple
           style={{ display: 'none' }}
-          onChange={e => handleFile(e.target.files[0])}
+          onChange={e => { handleFiles(e.target.files); e.target.value = ''; }}
         />
         <Upload size={32} strokeWidth={1.5} />
-        <p className="drop-zone-title">Drop your CSV file here</p>
-        <p className="drop-zone-subtitle">or click to browse</p>
+        <p className="drop-zone-title">Drop your CSV files here</p>
+        <p className="drop-zone-subtitle">or click to browse — select multiple files at once</p>
         <p className="drop-zone-hint">
           Supports most bank/finance CSV exports with columns like Date, Description, Amount
         </p>
