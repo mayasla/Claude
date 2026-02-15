@@ -514,6 +514,116 @@
   flex-wrap: wrap;
 }
 
+/* ─── Bulk Actions Bar ────────────────────────────────── */
+.bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  background: rgba(108, 92, 231, 0.08);
+  border: 1px solid rgba(108, 92, 231, 0.25);
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.bulk-count {
+  font-weight: 600;
+  color: var(--accent);
+  margin-right: 4px;
+}
+
+.bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+
+.bulk-btn:hover {
+  border-color: var(--text-muted);
+}
+
+.bulk-btn.review {
+  color: var(--income);
+  border-color: rgba(46, 204, 113, 0.3);
+}
+
+.bulk-btn.review:hover {
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.bulk-btn.unreview {
+  color: var(--warning);
+  border-color: rgba(243, 156, 18, 0.3);
+}
+
+.bulk-btn.unreview:hover {
+  background: rgba(243, 156, 18, 0.1);
+}
+
+.bulk-btn.delete {
+  color: var(--danger);
+  border-color: rgba(231, 76, 60, 0.3);
+}
+
+.bulk-btn.delete:hover {
+  background: rgba(231, 76, 60, 0.1);
+}
+
+.bulk-btn.clear {
+  color: var(--text-muted);
+}
+
+.bulk-cat-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.bulk-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+/* ─── Select Column ───────────────────────────────────── */
+.select-col {
+  width: 36px;
+  text-align: center;
+  cursor: default !important;
+}
+
+.select-cell {
+  text-align: center;
+}
+
+.select-col input[type="checkbox"],
+.select-cell input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.selected-row {
+  background: rgba(108, 92, 231, 0.06) !important;
+}
+
 .review-summary {
   display: flex;
   align-items: center;

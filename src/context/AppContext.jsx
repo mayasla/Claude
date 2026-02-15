@@ -47,6 +47,18 @@ function reducer(state, action) {
         ...state,
         transactions: state.transactions.filter(t => t.id !== action.payload),
       };
+    case 'BATCH_DELETE_TRANSACTIONS':
+      return {
+        ...state,
+        transactions: state.transactions.filter(t => !action.payload.includes(t.id)),
+      };
+    case 'BATCH_REVIEW_TRANSACTIONS':
+      return {
+        ...state,
+        transactions: state.transactions.map(t =>
+          action.payload.ids.includes(t.id) ? { ...t, reviewed: action.payload.reviewed } : t
+        ),
+      };
     case 'BATCH_UPDATE_CATEGORY':
       return {
         ...state,
