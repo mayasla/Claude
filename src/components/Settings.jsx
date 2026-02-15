@@ -9,10 +9,10 @@ export default function Settings() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   function exportCSV() {
-    const header = 'Date,Description,Amount,Category,Note\n';
+    const header = 'Date,Description,Amount,Category,CSV Category,Reviewed,Account,Note\n';
     const rows = state.transactions.map(t => {
       const cat = state.categories.find(c => c.id === t.category)?.name || t.category;
-      return `"${new Date(t.date).toLocaleDateString()}","${t.description.replace(/"/g, '""')}",${t.amount},"${cat}","${(t.note || '').replace(/"/g, '""')}"`;
+      return `"${new Date(t.date).toLocaleDateString()}","${t.description.replace(/"/g, '""')}",${t.amount},"${cat}","${(t.csvCategory || '').replace(/"/g, '""')}","${t.reviewed ? 'Yes' : 'No'}","${(t.account || '').replace(/"/g, '""')}","${(t.note || '').replace(/"/g, '""')}"`;
     });
     const blob = new Blob([header + rows.join('\n')], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);

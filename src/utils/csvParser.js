@@ -51,7 +51,21 @@ function parseDate(value) {
   return null;
 }
 
+function extractAccountName(fileName) {
+  if (!fileName) return 'Unknown';
+  // Remove file extension
+  let name = fileName.replace(/\.(csv|tsv|txt)$/i, '');
+  // Clean up common patterns like dates, numbers-only suffixes
+  name = name.replace(/[_-]?\d{4}[_-]?\d{2}[_-]?\d{2}/, '');
+  name = name.replace(/[_-]?\(\d+\)$/, '');
+  // Replace underscores/dashes with spaces
+  name = name.replace(/[_-]+/g, ' ').trim();
+  return name || fileName;
+}
+
 export function parseCSV(file) {
+  const accountName = extractAccountName(file.name);
+
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
@@ -97,15 +111,18 @@ export function parseCSV(file) {
             if (amount == null || amount === 0) continue;
 
             const description = row[descCol] || '';
-            const existingCategory = categoryCol ? row[categoryCol]?.trim() : null;
+            const csvCategory = categoryCol ? (row[categoryCol]?.trim() || null) : null;
+            const assignedCategory = csvCategory || guessCategory(description, amount);
 
             transactions.push({
               id: crypto.randomUUID(),
               date: date.toISOString(),
               description,
               amount,
-              category: existingCategory || guessCategory(description, amount),
-              originalCategory: existingCategory || null,
+              category: assignedCategory,
+              csvCategory: csvCategory,
+              reviewed: !!csvCategory,
+              account: accountName,
               note: '',
             });
           }

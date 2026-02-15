@@ -504,6 +504,128 @@
   border-color: var(--accent);
 }
 
+/* ─── Filter Bar ──────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.review-done {
+  color: var(--income);
+  font-weight: 600;
+}
+
+.review-sep {
+  color: var(--text-muted);
+}
+
+.review-pending {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.filter-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: 2px solid var(--accent);
+}
+
+/* ─── Review Column ───────────────────────────────────── */
+.review-col {
+  width: 44px;
+  text-align: center;
+}
+
+.review-cell {
+  text-align: center;
+}
+
+.review-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+
+.review-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.review-btn.is-reviewed {
+  color: var(--income);
+}
+
+.review-btn.is-reviewed:hover {
+  background: rgba(46, 204, 113, 0.1);
+}
+
+/* ─── CSV Category & Account Columns ─────────────────── */
+.csv-cat-col {
+  cursor: default !important;
+}
+
+.csv-cat-cell {
+  font-size: 12px;
+}
+
+.csv-cat-tag {
+  padding: 2px 8px;
+  background: rgba(108, 92, 231, 0.1);
+  color: var(--accent);
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.csv-cat-auto {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 11px;
+}
+
+.account-cell {
+  white-space: nowrap;
+}
+
+.account-tag {
+  padding: 2px 8px;
+  background: rgba(69, 183, 209, 0.1);
+  color: #45B7D1;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
 /* ─── CSV Upload ──────────────────────────────────────── */
 .csv-upload {
   max-width: 560px;
