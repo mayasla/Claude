@@ -588,31 +588,7 @@
   background: rgba(46, 204, 113, 0.1);
 }
 
-/* ─── CSV Category & Account Columns ─────────────────── */
-.csv-cat-col {
-  cursor: default !important;
-}
-
-.csv-cat-cell {
-  font-size: 12px;
-}
-
-.csv-cat-tag {
-  padding: 2px 8px;
-  background: rgba(108, 92, 231, 0.1);
-  color: var(--accent);
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.csv-cat-auto {
-  color: var(--text-muted);
-  font-style: italic;
-  font-size: 11px;
-}
-
+/* ─── Account Column ──────────────────────────────────── */
 .account-cell {
   white-space: nowrap;
 }

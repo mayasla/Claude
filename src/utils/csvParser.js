@@ -120,8 +120,7 @@ export function parseCSV(file) {
               description,
               amount,
               category: assignedCategory,
-              csvCategory: csvCategory,
-              reviewed: !!csvCategory,
+              reviewed: false,
               account: accountName,
               note: '',
             });

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Edit3, Trash2, Check, X, ChevronDown, ChevronUp, ArrowUpDown, CheckCircle2, Circle, Filter } from 'lucide-react';
+import { Search, Edit3, Trash2, Check, X, ChevronDown, ChevronUp, ArrowUpDown, CheckCircle2, Circle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import Icon from './Icon';
@@ -36,8 +36,7 @@ export default function TransactionList({ filteredTransactions }) {
       list = list.filter(t =>
         t.description.toLowerCase().includes(q) ||
         (categories.find(c => c.id === t.category)?.name || '').toLowerCase().includes(q) ||
-        (t.account || '').toLowerCase().includes(q) ||
-        (t.csvCategory || '').toLowerCase().includes(q)
+        (t.account || '').toLowerCase().includes(q)
       );
     }
     if (filterReviewed === 'reviewed') list = list.filter(t => t.reviewed);
@@ -71,7 +70,7 @@ export default function TransactionList({ filteredTransactions }) {
   }
 
   function saveEdit() {
-    dispatch({ type: 'UPDATE_TRANSACTION', payload: { id: editId, updates: { ...editData, reviewed: true } } });
+    dispatch({ type: 'UPDATE_TRANSACTION', payload: { id: editId, updates: editData } });
     setEditId(null);
   }
 
@@ -150,7 +149,6 @@ export default function TransactionList({ filteredTransactions }) {
               <th onClick={() => toggleSort('date')}>Date <SortIcon field="date" /></th>
               <th onClick={() => toggleSort('description')}>Description <SortIcon field="description" /></th>
               <th onClick={() => toggleSort('category')}>Category <SortIcon field="category" /></th>
-              <th className="csv-cat-col">CSV Category</th>
               <th onClick={() => toggleSort('account')}>Account <SortIcon field="account" /></th>
               <th onClick={() => toggleSort('amount')} className="text-right">Amount <SortIcon field="amount" /></th>
               <th className="actions-col">Actions</th>
@@ -166,7 +164,7 @@ export default function TransactionList({ filteredTransactions }) {
                     <button
                       className={`review-btn ${t.reviewed ? 'is-reviewed' : ''}`}
                       onClick={() => toggleReviewed(t)}
-                      title={t.reviewed ? 'Reviewed — click to mark as pending' : 'Pending — click to mark as reviewed'}
+                      title={t.reviewed ? 'Validated — click to unmark' : 'Click to validate'}
                     >
                       {t.reviewed
                         ? <CheckCircle2 size={18} />
@@ -211,13 +209,6 @@ export default function TransactionList({ filteredTransactions }) {
                       </span>
                     )}
                   </td>
-                  <td className="csv-cat-cell">
-                    {t.csvCategory ? (
-                      <span className="csv-cat-tag">{t.csvCategory}</span>
-                    ) : (
-                      <span className="csv-cat-auto">auto</span>
-                    )}
-                  </td>
                   <td className="account-cell">
                     <span className="account-tag">{t.account || '—'}</span>
                   </td>
@@ -227,7 +218,7 @@ export default function TransactionList({ filteredTransactions }) {
                   <td className="actions-cell">
                     {isEditing ? (
                       <>
-                        <button className="btn-icon save" onClick={saveEdit} title="Save & mark reviewed"><Check size={15} /></button>
+                        <button className="btn-icon save" onClick={saveEdit} title="Save"><Check size={15} /></button>
                         <button className="btn-icon cancel" onClick={() => setEditId(null)} title="Cancel"><X size={15} /></button>
                       </>
                     ) : (
