@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Morning">
+<title>Morning</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #0D1117;
+  --surface: #161B22;
+  --surface2: #1E2530;
+  --gym: #58A6FF;
+  --wfh: #3FB950;
+  --gold: #E3B341;
+  --text: #E6EDF3;
+  --muted: #8B949E;
+}
+
+html, body {
+  height: 100%; height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: env(safe-area-inset-top, 20px) 28px env(safe-area-inset-bottom, 20px);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.screen.active { opacity: 1; pointer-events: all; }
+
+/* WELCOME */
+#welcome { justify-content: space-between; padding-top: max(52px, env(safe-area-inset-top, 52px)); padding-bottom: max(40px, env(safe-area-inset-bottom, 40px)); }
+
+.welcome-top { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; justify-content: center; }
+.clock { font-family: 'DM Serif Display', Georgia, serif; font-size: 80px; letter-spacing: -3px; line-height: 1; }
+.date { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 2.5px; font-weight: 500; }
+.greeting { font-size: 20px; color: var(--muted); font-weight: 300; margin-top: 6px; }
+.section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2.5px; color: var(--muted); font-weight: 500; margin-bottom: 14px; }
+
+.day-buttons { display: flex; gap: 12px; width: 100%; max-width: 340px; }
+.day-btn {
+  flex: 1; padding: 20px 10px; border-radius: 20px;
+  border: 1.5px solid var(--surface2); background: var(--surface);
+  color: var(--muted); cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit;
+}
+.day-btn .icon { font-size: 32px; display: block; margin-bottom: 8px; }
+.day-btn .label { display: block; font-size: 15px; font-weight: 600; }
+.day-btn .sub { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.day-btn.gym.selected { border-color: var(--gym); background: rgba(88,166,255,0.12); color: var(--gym); }
+.day-btn.wfh.selected { border-color: var(--wfh); background: rgba(63,185,80,0.12); color: var(--wfh); }
+
+.start-btn {
+  width: 100%; max-width: 340px; padding: 20px; border-radius: 18px; border: none;
+  font-family: inherit; font-size: 17px; font-weight: 600; cursor: pointer;
+  margin-top: 16px; transition: all 0.25s; opacity: 0; pointer-events: none;
+  letter-spacing: 0.3px; transform: translateY(6px);
+}
+.start-btn.visible { opacity: 1; pointer-events: all; transform: translateY(0); }
+.start-btn.gym { background: var(--gym); color: #0D1117; }
+.start-btn.wfh { background: var(--wfh); color: #0D1117; }
+.start-btn:active { transform: scale(0.97); }
+
+/* ROUTINE */
+#routine { justify-content: flex-start; padding: 0; }
+
+.r-header {
+  width: 100%; padding: max(52px, env(safe-area-inset-top, 52px)) 28px 16px;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.mode-badge { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; }
+.mode-badge.gym { background: rgba(88,166,255,0.15); color: var(--gym); }
+.mode-badge.wfh { background: rgba(63,185,80,0.15); color: var(--wfh); }
+.step-count { font-size: 13px; color: var(--muted); font-weight: 500; }
+
+.progress-track { width: 100%; height: 2px; background: var(--surface2); flex-shrink: 0; }
+.progress-fill { height: 100%; transition: width 0.5s ease; }
+.progress-fill.gym { background: var(--gym); }
+.progress-fill.wfh { background: var(--wfh); }
+
+.step-area {
+  flex: 1; width: 100%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 16px 28px 0; overflow: hidden;
+}
+.step-time { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
+.step-icon { font-size: 50px; margin-bottom: 16px; }
+.step-title { font-family: 'DM Serif Display', Georgia, serif; font-size: 30px; text-align: center; line-height: 1.2; margin-bottom: 10px; }
+.step-desc { font-size: 15px; color: var(--muted); text-align: center; line-height: 1.65; max-width: 290px; font-weight: 300; }
+
+.step-enter { animation: enterAnim 0.35s ease forwards; }
+@keyframes enterAnim {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Timer */
+.timer-wrap { position: relative; width: 148px; height: 148px; margin: 22px 0; flex-shrink: 0; }
+.timer-svg { transform: rotate(-90deg); width: 148px; height: 148px; }
+.t-track { fill: none; stroke: var(--surface2); stroke-width: 5; }
+.t-fill { fill: none; stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+.t-fill.gym { stroke: var(--gym); }
+.t-fill.wfh { stroke: var(--wfh); }
+.t-fill.alarm { stroke: var(--gold); }
+
+.timer-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.timer-digits { font-family: 'DM Serif Display', Georgia, serif; font-size: 38px; line-height: 1; transition: color 0.3s; }
+.timer-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; }
+
+@keyframes alarmPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.93); }
+}
+.timer-digits.alarming { color: var(--gold); animation: alarmPulse 0.7s ease infinite; }
+
+/* Bottom */
+.step-bottom {
+  width: 100%; padding: 12px 28px max(36px, env(safe-area-inset-bottom, 36px));
+  display: flex; flex-direction: column; align-items: center; gap: 14px; flex-shrink: 0;
+}
+
+/* CHECKBOX */
+.checkbox-area { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; padding: 8px; }
+
+.checkbox-ring {
+  width: 76px; height: 76px; border-radius: 50%;
+  border: 2.5px solid var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: var(--surface);
+}
+.checkbox-ring.gym { border-color: var(--gym); }
+.checkbox-ring.wfh { border-color: var(--wfh); }
+.checkbox-ring.checking { transform: scale(1.18); }
+.checkbox-ring.checked.gym { background: var(--gym); border-color: var(--gym); }
+.checkbox-ring.checked.wfh { background: var(--wfh); border-color: var(--wfh); }
+
+.check-svg { width: 34px; height: 34px; opacity: 0; transition: opacity 0.2s; }
+.checkbox-ring.checked .check-svg { opacity: 1; }
+
+.checkbox-label { font-size: 14px; font-weight: 500; color: var(--muted); letter-spacing: 0.3px; }
+
+@keyframes ripple {
+  from { transform: scale(1); opacity: 0.5; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+.ripple {
+  position: absolute; inset: -2px; border-radius: 50%;
+  border: 2px solid currentColor; animation: ripple 0.55s ease forwards; pointer-events: none;
+}
+
+.skip-btn {
+  background: transparent; border: 1px solid var(--surface2);
+  color: var(--muted); padding: 12px 32px; border-radius: 12px;
+  font-family: inherit; font-size: 14px; cursor: pointer; transition: all 0.2s;
+}
+.skip-btn:active { opacity: 0.7; }
+
+/* COMPLETE */
+#complete { gap: 18px; text-align: center; }
+.complete-icon { font-size: 68px; }
+.complete-title { font-family: 'DM Serif Display', Georgia, serif; font-size: 36px; line-height: 1.15; }
+.complete-sub { font-size: 15px; color: var(--muted); font-weight: 300; line-height: 1.65; max-width: 270px; }
+.stats { display: flex; gap: 12px; margin-top: 4px; }
+.stat { flex: 1; padding: 16px 8px; background: var(--surface); border-radius: 16px; border: 1px solid var(--surface2); }
+.stat-val { font-family: 'DM Serif Display', Georgia, serif; font-size: 30px; }
+.stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 500; }
+.restart-btn {
+  width: 100%; max-width: 320px; padding: 18px; border-radius: 16px;
+  border: 1.5px solid var(--surface2); background: transparent; color: var(--muted);
+  font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 4px;
+}
+.restart-btn:active { transform: scale(0.97); }
+</style>
+</head>
+<body>
+
+<div class="screen active" id="welcome">
+  <div class="welcome-top">
+    <div class="clock" id="clock">6:00</div>
+    <div class="date" id="dateDisp">Friday 6 Mar</div>
+    <div class="greeting">Good morning, Mylène</div>
+  </div>
+  <div class="section-label">What kind of morning is it?</div>
+  <div class="day-buttons">
+    <button class="day-btn gym" onclick="selectMode('gym')">
+      <span class="icon">🚴</span><span class="label">Gym Day</span><span class="sub">Tue · Wed · Thu</span>
+    </button>
+    <button class="day-btn wfh" onclick="selectMode('wfh')">
+      <span class="icon">🏠</span><span class="label">WFH Day</span><span class="sub">Mon · Fri</span>
+    </button>
+  </div>
+  <button class="start-btn" id="startBtn" onclick="startRoutine()">Let's go →</button>
+</div>
+
+<div class="screen" id="routine">
+  <div class="r-header">
+    <div class="mode-badge" id="modeBadge">Gym Day</div>
+    <div class="step-count" id="stepCount">Step 1 of 8</div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+  <div class="step-area" id="stepArea">
+    <div class="step-time" id="stepTime">6:00</div>
+    <div class="step-icon" id="stepIcon">💧</div>
+    <div class="step-title" id="stepTitle">Wake up</div>
+    <div class="step-desc" id="stepDesc">Drink a full glass of water.</div>
+    <div class="timer-wrap">
+      <svg class="timer-svg" viewBox="0 0 148 148">
+        <circle class="t-track" cx="74" cy="74" r="65"/>
+        <circle class="t-fill" id="timerCircle" cx="74" cy="74" r="65"
+          stroke-dasharray="408.4" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-digits" id="timerDigits">2:00</div>
+        <div class="timer-lbl" id="timerLbl">remaining</div>
+      </div>
+    </div>
+  </div>
+  <div class="step-bottom">
+    <div class="checkbox-area" id="checkboxArea" onclick="handleCheck()">
+      <div class="checkbox-ring" id="checkRing">
+        <svg class="check-svg" viewBox="0 0 34 34" fill="none">
+          <polyline points="7,17 14,24 27,10" stroke="white" stroke-width="3.5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="checkbox-label" id="checkLabel">Mark as done</div>
+    </div>
+    <button class="skip-btn" onclick="nextStep(true)">Skip</button>
+  </div>
+</div>
+
+<div class="screen" id="complete">
+  <div class="complete-icon">🌟</div>
+  <div class="complete-title">Morning done,<br><em>Mylène.</em></div>
+  <div class="complete-sub">You showed up for yourself. That's the whole game.</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="statSteps">8</div><div class="stat-lbl">steps</div></div>
+    <div class="stat"><div class="stat-val" id="statMins">45</div><div class="stat-lbl">minutes</div></div>
+    <div class="stat"><div class="stat-val" id="statStreak">1</div><div class="stat-lbl">streak</div></div>
+  </div>
+  <button class="restart-btn" onclick="restart()">← Start over</button>
+</div>
+
+<script>
+const ROUTINES = {
+  gym: [
+    { time:"6:00", icon:"💧", title:"Wake up",        desc:"Drink a full glass of water. Don't touch your phone.", duration:2 },
+    { time:"6:05", icon:"🩱", title:"Kit on",          desc:"Get dressed for the gym. Kit was laid out last night — zero thinking needed.", duration:4 },
+    { time:"6:09", icon:"🎒", title:"Grab your bag",   desc:"Shake bottle, work bag, keys. Quick scan: nothing forgotten.", duration:3 },
+    { time:"6:20", icon:"🚴", title:"Cycle to gym",    desc:"30 min ride. Phone in bag. Just you and the road.", duration:30 },
+    { time:"6:50", icon:"🧘", title:"Settle in",       desc:"Arrive, set up your spot. 10 min before the class starts.", duration:10 },
+    { time:"7:00", icon:"💪", title:"Pilates class",   desc:"60 min. This is your mental clarity for the day. Give it everything.", duration:60 },
+    { time:"8:00", icon:"🚿", title:"Shower & dress",  desc:"30 min to shower and get ready at the gym.", duration:30 },
+    { time:"8:30", icon:"☕", title:"At your desk",    desc:"Shake in hand. 30 min buffer before 9am. You've already won the morning.", duration:30 },
+  ],
+  wfh: [
+    { time:"7:00", icon:"💧", title:"Wake up",          desc:"Drink a full glass of water. Open the blinds — let the light in.", duration:2 },
+    { time:"7:02", icon:"☕", title:"Make your coffee",  desc:"Sit down with it. No screen yet. Just you and the morning.", duration:5 },
+    { time:"7:07", icon:"📓", title:"Brain dump",        desc:"Everything swirling in your head — worries, to-dos, random thoughts. Get it out.", duration:5 },
+    { time:"7:12", icon:"🎯", title:"3 priorities",      desc:"What 3 things would make today feel like a success? Write them down.", duration:5 },
+    { time:"7:17", icon:"✨", title:"One good thing",    desc:"One thing you're looking forward to today. Small or big.", duration:3 },
+    { time:"7:20", icon:"🚿", title:"Shower & dress",    desc:"Get dressed properly — even on WFH days. Work mode on.", duration:25 },
+    { time:"7:45", icon:"💻", title:"At your desk",      desc:"A full hour before 9am. Clear head, intentional start. You've earned it.", duration:60 },
+  ]
+};
+
+let mode = null, steps = [], currentStep = 0;
+let timerSec = 0, totalSec = 0, stepTotalSec = 0;
+let timerInterval = null, alarmInterval = null;
+let checked = false;
+const CIRC = 2 * Math.PI * 65;
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('dateDisp').textContent = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]}`;
+}
+updateClock(); setInterval(updateClock, 15000);
+
+function selectMode(m) {
+  mode = m;
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`.day-btn.${m}`).classList.add('selected');
+  const btn = document.getElementById('startBtn');
+  btn.className = `start-btn visible ${m}`;
+  btn.textContent = m === 'gym' ? '🚴 Start gym morning →' : '🏠 Start WFH morning →';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startRoutine() {
+  if (!mode) return;
+  steps = ROUTINES[mode]; currentStep = 0; totalSec = 0;
+  renderStep(); showScreen('routine');
+}
+
+function renderStep() {
+  const s = steps[currentStep];
+  checked = false;
+
+  document.getElementById('modeBadge').textContent = mode === 'gym' ? '🚴 Gym Day' : '🏠 WFH Day';
+  document.getElementById('modeBadge').className = `mode-badge ${mode}`;
+  document.getElementById('stepCount').textContent = `Step ${currentStep+1} of ${steps.length}`;
+
+  const pf = document.getElementById('progressFill');
+  pf.style.width = (currentStep / steps.length * 100) + '%';
+  pf.className = `progress-fill ${mode}`;
+
+  const area = document.getElementById('stepArea');
+  area.classList.remove('step-enter'); void area.offsetWidth; area.classList.add('step-enter');
+
+  document.getElementById('stepTime').textContent = s.time;
+  document.getElementById('stepIcon').textContent = s.icon;
+  document.getElementById('stepTitle').textContent = s.title;
+  document.getElementById('stepDesc').textContent = s.desc;
+
+  const ring = document.getElementById('checkRing');
+  ring.className = `checkbox-ring ${mode}`;
+  document.getElementById('checkLabel').textContent = 'Mark as done';
+
+  document.getElementById('timerCircle').className = `t-fill ${mode}`;
+  document.getElementById('timerDigits').className = 'timer-digits';
+  document.getElementById('timerLbl').textContent = 'remaining';
+
+  stepTotalSec = s.duration * 60;
+  startTimer(stepTotalSec);
+}
+
+// Audio
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(freq, startTime, duration, volume = 0.3) {
+  try {
+    const ctx = getCtx();
+    const osc = ctx.createOscillator(), gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine'; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, ctx.currentTime + startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
+    osc.start(ctx.currentTime + startTime); osc.stop(ctx.currentTime + startTime + duration);
+  } catch(e) {}
+}
+
+function playBeep() {
+  playTone(880, 0, 0.15, 0.35);
+  playTone(660, 0.18, 0.25, 0.25);
+}
+
+function playSuccess() {
+  [[523,0],[659,0.13],[784,0.26]].forEach(([f,d]) => playTone(f, d, 0.3, 0.2));
+}
+
+function playFanfare() {
+  [[523,0],[659,0.15],[784,0.3],[1047,0.45]].forEach(([f,d]) => playTone(f, d, 0.45, 0.18));
+}
+
+// Timer
+function startTimer(secs) {
+  clearInterval(timerInterval); stopAlarm();
+  timerSec = secs;
+  updateTimerDisplay(); updateRing(secs, secs);
+
+  timerInterval = setInterval(() => {
+    if (checked) return;
+    timerSec--; totalSec++;
+    updateTimerDisplay(); updateRing(timerSec, stepTotalSec);
+    if (timerSec <= 0 && !checked) { clearInterval(timerInterval); triggerAlarm(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const abs = Math.abs(timerSec);
+  document.getElementById('timerDigits').textContent = `${Math.floor(abs/60)}:${String(abs%60).padStart(2,'0')}`;
+}
+
+function updateRing(remaining, total) {
+  document.getElementById('timerCircle').style.strokeDashoffset = CIRC * (1 - Math.max(0, remaining) / total);
+}
+
+function triggerAlarm() {
+  document.getElementById('timerDigits').className = 'timer-digits alarming';
+  document.getElementById('timerCircle').className = 't-fill alarm';
+  document.getElementById('timerLbl').textContent = "time's up!";
+  playBeep();
+  if (navigator.vibrate) navigator.vibrate([300, 150, 300]);
+  alarmInterval = setInterval(() => {
+    playBeep();
+    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+  }, 2500);
+}
+
+function stopAlarm() { clearInterval(alarmInterval); alarmInterval = null; }
+
+// Checkbox
+function handleCheck() {
+  if (checked) return;
+  checked = true;
+  stopAlarm(); clearInterval(timerInterval);
+  try { getCtx().resume(); } catch(e) {}
+
+  const ring = document.getElementById('checkRing');
+  ring.classList.add('checking');
+
+  setTimeout(() => {
+    ring.classList.remove('checking');
+    ring.classList.add('checked', mode);
+    document.getElementById('checkLabel').textContent = 'Done ✓';
+    playSuccess();
+    if (navigator.vibrate) navigator.vibrate(60);
+
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    r.style.color = mode === 'gym' ? 'var(--gym)' : 'var(--wfh)';
+    ring.appendChild(r);
+    setTimeout(() => r.remove(), 600);
+    setTimeout(nextStep, 750);
+  }, 150);
+}
+
+function nextStep() {
+  clearInterval(timerInterval); stopAlarm(); checked = false;
+  currentStep++;
+  if (currentStep >= steps.length) showComplete();
+  else renderStep();
+}
+
+function showComplete() {
+  let streak = parseInt(localStorage.getItem('streak') || '0');
+  const lastDate = localStorage.getItem('lastDate') || '';
+  const today = new Date().toDateString();
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  if (lastDate !== today) {
+    streak = lastDate === yesterday.toDateString() ? streak+1 : 1;
+    try { localStorage.setItem('streak', streak); localStorage.setItem('lastDate', today); } catch(e) {}
+  }
+  document.getElementById('statSteps').textContent = steps.length;
+  document.getElementById('statMins').textContent = Math.round(totalSec/60);
+  document.getElementById('statStreak').textContent = streak;
+  setTimeout(playFanfare, 300);
+  showScreen('complete');
+}
+
+function restart() {
+  mode = null;
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('startBtn').className = 'start-btn';
+  showScreen('welcome');
+}
+</script>
+</body>
+</html>
